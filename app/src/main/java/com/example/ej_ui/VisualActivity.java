@@ -17,6 +17,7 @@ public class VisualActivity extends AppCompatActivity {
     private TextView name_info;
     private TextView surname_info;
     private TextView phone_info;
+    private TextView skill_info;
     private Button call_button;
     private Button back_button;
 
@@ -36,10 +37,12 @@ public class VisualActivity extends AppCompatActivity {
         phone_info = findViewById(R.id.vPhone_info);
         call_button = findViewById(R.id.call_button);
         back_button = findViewById(R.id.back_button);
+        skill_info = findViewById(R.id.vSkill_info);
 
         name_info.setText(getIntent().getStringExtra("name"));
         surname_info.setText(getIntent().getStringExtra("surname"));
         phone_info.setText(getIntent().getStringExtra("phone"));
+        skill_info.setText(getIntent().getStringExtra("skills"));
 
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override

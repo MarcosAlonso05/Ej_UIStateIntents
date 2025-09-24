@@ -50,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        skillsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addData();
+            }
+        });
+
     }
 
     private void seeData(){
@@ -57,17 +64,65 @@ public class MainActivity extends AppCompatActivity {
         String surname = editSurnameText.getText().toString();
         String phone = editPhone.getText().toString();
 
+        int childCount = viewLayout.getChildCount();
+        StringBuilder skillsBuilder = new StringBuilder();
+
         if(name.isEmpty() || surname.isEmpty() || phone.isEmpty()){
             Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
         }else {
+            if(childCount != 0){
+                for (int i = 0; i < childCount; i++) {
+                    View child = viewLayout.getChildAt(i);
+                    if (child instanceof EditText) {
+                        String skill = ((EditText) child).getText().toString().trim();
+                        if (!skill.isEmpty()) {
+                            if (skillsBuilder.length() > 0) {
+                                skillsBuilder.append(", ");
+                            }
+                            skillsBuilder.append(skill);
+                        }
+                    }
+                }
+            }
             Intent intent = new Intent(MainActivity.this, VisualActivity.class);
             intent.putExtra("name", name);
             intent.putExtra("surname", surname);
             intent.putExtra("phone", phone);
+            intent.putExtra("skills", skillsBuilder.toString());
             startActivity(intent);
         }
     }
     private void addData(){
+        EditText skill = new EditText(this);
+        viewLayout.addView(skill);
+    }
 
+    @Override
+    protected  void onSaveInstanceState(Bundle outState){
+
+        super.onSaveInstanceState(outState);
+
+        int childCount = viewLayout.getChildCount();
+        outState.putInt("skillsCount", childCount);
+
+        for(int i = 0; i < childCount; i++){
+            View child = viewLayout.getChildAt(i);
+            if(child instanceof EditText) {
+                outState.putString("skill_"+ i, ((EditText) child).getText().toString());
+            }
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        int count = savedInstanceState.getInt("skillsCount", 0);
+
+        for (int i = 0; i < count; i++) {
+            EditText skill = new EditText(this);
+            skill.setText(savedInstanceState.getString("skill_" + i, ""));
+            viewLayout.addView(skill);
+        }
     }
 }
