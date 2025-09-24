@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Ej_UI</string>
+    <string name="name">Nombre</string>
+    <string name="surname">Apellido</string>
+    <string name="phone">Telefono</string>
+    <string name="skill">Skills</string>
+    <string name="skillButton">+</string>
+    <string name="visualitation">Ver</string>
+
+    <string name="call">Llamar</string>
+    <string name="back">Volver</string>
 </resources>
