@@ -1,10 +1,12 @@
 package com.example.ej_ui;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,6 +52,18 @@ public class VisualActivity extends AppCompatActivity {
                 Intent intent = new Intent(VisualActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        call_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phoneNumber = phone_info.getText().toString().trim();
+                Uri uri = Uri.parse("tel:" + phoneNumber);
+                Intent it = new Intent(Intent.ACTION_DIAL, uri);
+
+                startActivity(it);
+
             }
         });
     }
