@@ -1,20 +1,28 @@
 package com.example.ej_ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText editSurnameText;
     private EditText editPhone;
     private Button skillsButton;
-    private Button visualButton;
+    private FloatingActionButton fabButton;
+
+    private CheckBox checkBox;
     private LinearLayout viewLayout;
 
     @Override
@@ -41,9 +51,18 @@ public class MainActivity extends AppCompatActivity {
         editPhone = findViewById(R.id.phoneImput);
         skillsButton = findViewById(R.id.skill_button);
         viewLayout = findViewById(R.id.skillLayout);
-        visualButton = findViewById(R.id.visualitation_button);
+        fabButton = findViewById(R.id.floatingActionButton);
+        checkBox = findViewById(R.id.checkBox);
+        fabButton.setEnabled(false);
 
-        visualButton.setOnClickListener(new View.OnClickListener() {
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
+                fabButton.setEnabled(isChecked);
+            }
+        });
+
+        fabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 seeData();
@@ -53,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         skillsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addData();
+                alert();
             }
         });
 
@@ -73,14 +92,13 @@ public class MainActivity extends AppCompatActivity {
             if(childCount != 0){
                 for (int i = 0; i < childCount; i++) {
                     View child = viewLayout.getChildAt(i);
-                    if (child instanceof EditText) {
-                        String skill = ((EditText) child).getText().toString().trim();
-                        if (!skill.isEmpty()) {
-                            if (skillsBuilder.length() > 0) {
-                                skillsBuilder.append(", ");
-                            }
-                            skillsBuilder.append(skill);
+
+                    String skill = ((TextView) child).getText().toString().trim();
+                    if (!skill.isEmpty()) {
+                        if (skillsBuilder.length() > 0) {
+                            skillsBuilder.append(", ");
                         }
+                        skillsBuilder.append(skill);
                     }
                 }
             }
@@ -92,9 +110,63 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-    private void addData(){
-        EditText skill = new EditText(this);
-        viewLayout.addView(skill);
+    private void addData(String skill) {
+
+        TextView item = new TextView(this);
+        if (skill != null) {
+            item.setText(skill);
+
+            item.setOnLongClickListener(v ->{
+                deleteSkill(item);
+                return true;
+            });
+
+            viewLayout.addView(item);
+        }
+    }
+
+    private void alert(){
+        int childCount = viewLayout.getChildCount();
+        if(childCount < 5){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            EditText skill = new EditText(this);
+
+            builder.setView(skill);
+            builder.setTitle("Agrega Skill")
+                    .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            addData(skill.getText().toString());
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .show();
+        } else {
+            Toast.makeText(this, "Maximo 5 skills", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deleteSkill(TextView item){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Eliminar skill");
+        builder.setMessage("¿Deseas eliminar \"" + item.getText().toString() + "\"?");
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                viewLayout.removeView(item);
+                dialog.dismiss();
+            }
+        })
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+
     }
 
     @Override
@@ -107,9 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i < childCount; i++){
             View child = viewLayout.getChildAt(i);
-            if(child instanceof EditText) {
-                outState.putString("skill_"+ i, ((EditText) child).getText().toString());
-            }
+            outState.putString("skill_"+ i, ((TextView) child).getText().toString());
         }
     }
 
@@ -120,8 +190,12 @@ public class MainActivity extends AppCompatActivity {
         int count = savedInstanceState.getInt("skillsCount", 0);
 
         for (int i = 0; i < count; i++) {
-            EditText skill = new EditText(this);
+            TextView skill = new TextView(this);
             skill.setText(savedInstanceState.getString("skill_" + i, ""));
+            skill.setOnLongClickListener(v ->{
+                deleteSkill(skill);
+                return true;
+            });
             viewLayout.addView(skill);
         }
     }
